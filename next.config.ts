@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
   },
   // React Compilerの厳格なチェックをオフにする（今回出ている Error: Compilation Skipped 対策）
   experimental: {
-    reactCompiler: false,
+    // reactCompiler: false,
   },
 };
 
