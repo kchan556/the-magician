@@ -1,9 +1,14 @@
--- matchesテーブルにRLSを有効化し、対戦参加者が自分の対戦記録を閲覧できるようにする
+-- matchesテーブルにRLSを有効化
+ALTER TABLE public.matches ENABLE ROW LEVEL SECURITY;
 
-ALTER TABLE matches ENABLE ROW LEVEL SECURITY;
+-- 既存のポリシーを削除
+DROP POLICY IF EXISTS "Players can view their own matches" ON public.matches;
 
-DROP POLICY IF EXISTS "Players can view their own matches" ON matches;
+-- 新しいポリシーを作成（::text を ::uuid に修正しました）
 CREATE POLICY "Players can view their own matches"
-  ON matches
+  ON public.matches
   FOR SELECT
-  USING (auth.uid()::text = player1_id OR auth.uid()::text = player2_id);
+  USING (
+    auth.uid()::uuid = player1_id OR 
+    auth.uid()::uuid = player2_id
+  );
