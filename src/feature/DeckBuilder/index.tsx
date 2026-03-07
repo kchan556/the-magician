@@ -528,6 +528,22 @@ export const DeckBuilder = ({ implementedIds, opMap }: DeckBuilderProps) => {
       setCurrentDeckTitle(savedMainDeck.title);
       setCurrentDeckId(savedMainDeck.id);
     }
+    // --- ここからバックアップ読み込みを追加 ---
+    else if (!isDeckLoading && !savedMainDeck) {
+      const backup =
+        typeof window !== 'undefined' ? localStorage.getItem('magician_backup_deck') : null;
+      if (backup) {
+        try {
+          const { deck: savedDeck, jokers: savedJokers } = JSON.parse(backup);
+          setDeck(savedDeck);
+          setJokers(savedJokers || []);
+          setCurrentDeckTitle('ブラウザ保存データ');
+        } catch (e) {
+          console.error('バックアップの読み込みに失敗しました', e);
+        }
+      }
+    }
+    // --- ここまで ---
   }
 
   const handleCardClick = useCallback((index: number) => {
@@ -759,7 +775,9 @@ export const DeckBuilder = ({ implementedIds, opMap }: DeckBuilderProps) => {
           const savedDeck = await saveDeckToStorage(title, deck, jokers, isMainDeck);
           setCurrentDeckTitle(title);
           setCurrentDeckId(savedDeck?.id ?? null);
-
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('magician_backup_deck', JSON.stringify({ deck, jokers }));
+          }
           alert(
             `デッキ「${title}」が保存されました。${isMainDeck ? '（メインデッキに設定されました）' : ''}`
           );
